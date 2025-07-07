@@ -4,12 +4,19 @@ import { Component } from '@angular/core';
   selector: 'app-admin',
   standalone: true,
   template: `
-    <h1>Administrador</h1>
-    <ul>
-      <li><a href="#">Gestionar Productos</a></li>
-      <li><a href="#">Ver Ventas</a></li>
-      <li><a href="#">Configuraci\u00f3n</a></li>
-    </ul>
+    <div class="row">
+      <div class="col-md-3 mb-4">
+        <div class="list-group">
+          <a href="#" class="list-group-item list-group-item-action">Gestionar Productos</a>
+          <a href="#" class="list-group-item list-group-item-action">Ver Ventas</a>
+          <a href="#" class="list-group-item list-group-item-action">Configuraci\u00f3n</a>
+        </div>
+      </div>
+      <div class="col">
+        <h1>Administrador</h1>
+        <p>Seleccione una opci\u00f3n del men\u00fa.</p>
+      </div>
+    </div>
   `,
   styles: []
 })
