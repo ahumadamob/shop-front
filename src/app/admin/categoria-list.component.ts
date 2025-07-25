@@ -13,17 +13,17 @@ import { Categoria } from '../models/categoria.model';
 
     <a routerLink="nueva" class="btn btn-primary mb-3">Nueva Categoría</a>
 
-    <table class="table table-bordered" *ngIf="categorias.length">
+    <table class="table table-hover" *ngIf="categorias.length">
       <thead>
         <tr>
-          <th>ID</th>
-          <th>Nombre</th>
-          <th>Acciones</th>
+          <th scope="col">ID</th>
+          <th scope="col">Nombre</th>
+          <th scope="col">Acciones</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let c of categorias">
-          <td>{{ c.id }}</td>
+          <th scope="row">{{ c.id }}</th>
           <td>{{ c.nombre }}</td>
           <td>
             <a [routerLink]="[c.id]" class="btn btn-sm btn-outline-primary me-2">Editar</a>
