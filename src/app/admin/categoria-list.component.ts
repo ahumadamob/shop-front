@@ -1,41 +1,17 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { CategoriaService } from '../services/categoria.service';
-import { Categoria, CategoriaRequest } from '../models/categoria.model';
+import { Categoria } from '../models/categoria.model';
 
 @Component({
   selector: 'app-categoria-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, RouterModule],
   template: `
     <h2>Categorías</h2>
 
-    <div *ngIf="showAddForm" class="card card-body mb-3">
-      <h5>Nueva Categoría</h5>
-      <form (ngSubmit)="addCategoria()">
-        <div class="mb-2">
-          <label class="form-label">Nombre</label>
-          <input class="form-control" [(ngModel)]="newCategoria.nombre" name="nombre" />
-        </div>
-        <button type="submit" class="btn btn-primary">Guardar</button>
-        <button type="button" class="btn btn-secondary ms-2" (click)="showAddForm=false">Cancelar</button>
-      </form>
-    </div>
-
-    <div *ngIf="editCategoria" class="card card-body mb-3">
-      <h5>Editar Categoría</h5>
-      <form (ngSubmit)="updateCategoria()">
-        <div class="mb-2">
-          <label class="form-label">Nombre</label>
-          <input class="form-control" [(ngModel)]="editCategoria.nombre" name="editNombre" />
-        </div>
-        <button type="submit" class="btn btn-primary">Guardar</button>
-        <button type="button" class="btn btn-secondary ms-2" (click)="cancelEdit()">Cancelar</button>
-      </form>
-    </div>
-
-    <button class="btn btn-primary mb-3" (click)="showAddForm=true">Agregar Categoría</button>
+    <a routerLink="nueva" class="btn btn-primary mb-3">Nueva Categoría</a>
 
     <table class="table table-bordered" *ngIf="categorias.length">
       <thead>
@@ -50,7 +26,7 @@ import { Categoria, CategoriaRequest } from '../models/categoria.model';
           <td>{{ c.id }}</td>
           <td>{{ c.nombre }}</td>
           <td>
-            <button class="btn btn-sm btn-outline-primary me-2" (click)="startEdit(c)">Editar</button>
+            <a [routerLink]="[c.id]" class="btn btn-sm btn-outline-primary me-2">Editar</a>
             <button class="btn btn-sm btn-outline-danger" (click)="deleteCategoria(c.id)">Eliminar</button>
           </td>
         </tr>
@@ -62,9 +38,6 @@ import { Categoria, CategoriaRequest } from '../models/categoria.model';
 })
 export class CategoriaListComponent implements OnInit {
   categorias: Categoria[] = [];
-  newCategoria: CategoriaRequest = { nombre: '' };
-  editCategoria: Categoria | null = null;
-  showAddForm = false;
 
   constructor(private categoriaService: CategoriaService) {}
 
@@ -73,35 +46,9 @@ export class CategoriaListComponent implements OnInit {
   }
 
   loadCategorias(): void {
-    this.categoriaService.getCategorias().subscribe(data => (this.categorias = data));
-  }
-
-  addCategoria(): void {
-    this.categoriaService.createCategoria(this.newCategoria).subscribe(() => {
-      this.showAddForm = false;
-      this.newCategoria = { nombre: '' };
-      this.loadCategorias();
-    });
-  }
-
-  startEdit(c: Categoria): void {
-    this.editCategoria = { ...c };
-  }
-
-  cancelEdit(): void {
-    this.editCategoria = null;
-  }
-
-  updateCategoria(): void {
-    if (!this.editCategoria) return;
-    const req: CategoriaRequest = { nombre: this.editCategoria.nombre };
-    if (this.editCategoria.parent?.id) req.parentId = this.editCategoria.parent.id;
     this.categoriaService
-      .updateCategoria(this.editCategoria.id, req)
-      .subscribe(() => {
-        this.editCategoria = null;
-        this.loadCategorias();
-      });
+      .getCategorias()
+      .subscribe((data) => (this.categorias = data));
   }
 
   deleteCategoria(id: number): void {
