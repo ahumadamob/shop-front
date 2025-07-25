@@ -9,30 +9,33 @@ import { Categoria } from '../models/categoria.model';
   standalone: true,
   imports: [CommonModule, RouterModule],
   template: `
-    <h2>Categorías</h2>
+    <div class="card border-primary mb-3">
+      <div class="card-header">Categorías</div>
+      <div class="card-body">
+        <a routerLink="nueva" class="btn btn-primary mb-3">Nueva Categoría</a>
 
-    <a routerLink="nueva" class="btn btn-primary mb-3">Nueva Categoría</a>
-
-    <table class="table table-hover" *ngIf="categorias.length">
-      <thead>
-        <tr>
-          <th scope="col">ID</th>
-          <th scope="col">Nombre</th>
-          <th scope="col">Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let c of categorias">
-          <th scope="row">{{ c.id }}</th>
-          <td>{{ c.nombre }}</td>
-          <td>
-            <a [routerLink]="[c.id]" class="btn btn-info btn-sm me-2">Editar</a>
-            <button class="btn btn-danger btn-sm" (click)="deleteCategoria(c.id)">Eliminar</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <p *ngIf="!categorias.length">No hay categorias.</p>
+        <table class="table table-hover" *ngIf="categorias.length">
+          <thead>
+            <tr>
+              <th scope="col">ID</th>
+              <th scope="col">Nombre</th>
+              <th scope="col">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let c of categorias">
+              <th scope="row">{{ c.id }}</th>
+              <td>{{ c.nombre }}</td>
+              <td>
+                <a [routerLink]="[c.id]" class="btn btn-info btn-sm me-2">Editar</a>
+                <button class="btn btn-danger btn-sm" (click)="deleteCategoria(c.id)">Eliminar</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p *ngIf="!categorias.length">No hay categorias.</p>
+      </div>
+    </div>
   `,
   styles: []
 })
