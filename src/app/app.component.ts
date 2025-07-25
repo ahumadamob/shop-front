@@ -53,8 +53,22 @@ import { RouterModule } from '@angular/router';
       <div class="container-fluid">
         <a class="navbar-brand" routerLink="/">ShopFront</a>
         <ul class="navbar-nav ms-auto">
-          <li class="nav-item">
-            <a class="nav-link" routerLink="/admin">Administrador</a>
+          <li class="nav-item dropdown">
+            <a
+              class="nav-link dropdown-toggle"
+              id="adminDropdown"
+              href="#"
+              role="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              Administrador
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminDropdown">
+              <li>
+                <a class="dropdown-item" routerLink="/admin/categoria">Categorías</a>
+              </li>
+            </ul>
           </li>
         </ul>
       </div>

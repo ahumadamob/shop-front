@@ -28,8 +28,18 @@ import { RouterModule } from '@angular/router';
       </ul>
 
       <div id="content-wrapper" class="d-flex flex-column">
-        <div id="content" class="p-4">
-          <router-outlet></router-outlet>
+        <div id="content">
+          <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 shadow">
+            <button
+              id="sidebarToggleTop"
+              class="btn btn-link d-md-none rounded-circle me-3"
+            >
+              <i class="fa fa-bars"></i>
+            </button>
+          </nav>
+          <div class="container-fluid">
+            <router-outlet></router-outlet>
+          </div>
         </div>
       </div>
     </div>
