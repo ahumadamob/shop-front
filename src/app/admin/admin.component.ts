@@ -27,8 +27,8 @@ import { RouterModule } from '@angular/router';
 
       <div id="page-content-wrapper" class="w-100">
         <nav class="navbar navbar-light bg-light border-bottom">
-          <button class="btn btn-outline-primary" type="button">
-            <i class="fa fa-bars"></i>
+          <button class="navbar-toggler" type="button">
+            <span class="navbar-toggler-icon"></span>
           </button>
         </nav>
         <div class="container-fluid mt-4">
