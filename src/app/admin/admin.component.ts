@@ -6,40 +6,33 @@ import { RouterModule } from '@angular/router';
   standalone: true,
   imports: [RouterModule],
   template: `
-    <div id="wrapper">
-      <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
-        <a class="sidebar-brand d-flex align-items-center justify-content-center" routerLink="/admin">
-          <div class="sidebar-brand-text mx-3">Admin</div>
-        </a>
-        <hr class="sidebar-divider my-0" />
-        <li class="nav-item">
-          <a class="nav-link" href="#">Gestionar Productos</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">Ver Ventas</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">Configuración</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" routerLink="categoria">Categoria</a>
-        </li>
-        <hr class="sidebar-divider d-none d-md-block" />
-      </ul>
+    <div class="d-flex" id="wrapper">
+      <nav id="sidebar" class="bg-dark text-white p-3">
+        <h3 class="text-white">Admin</h3>
+        <ul class="nav flex-column mt-4">
+          <li class="nav-item">
+            <a class="nav-link text-white" href="#">Gestionar Productos</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white" href="#">Ver Ventas</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white" href="#">Configuración</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white" routerLink="categoria">Categoria</a>
+          </li>
+        </ul>
+      </nav>
 
-      <div id="content-wrapper" class="d-flex flex-column">
-        <div id="content">
-          <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 shadow">
-            <button
-              id="sidebarToggleTop"
-              class="btn btn-link d-md-none rounded-circle me-3"
-            >
-              <i class="fa fa-bars"></i>
-            </button>
-          </nav>
-          <div class="container-fluid">
-            <router-outlet></router-outlet>
-          </div>
+      <div id="page-content-wrapper" class="w-100">
+        <nav class="navbar navbar-light bg-light border-bottom">
+          <button class="btn btn-outline-primary" type="button">
+            <i class="fa fa-bars"></i>
+          </button>
+        </nav>
+        <div class="container-fluid mt-4">
+          <router-outlet></router-outlet>
         </div>
       </div>
     </div>

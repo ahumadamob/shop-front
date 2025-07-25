@@ -6,71 +6,41 @@ import { RouterModule } from '@angular/router';
   standalone: true,
   imports: [RouterModule],
   template: `
-    <div class="preview-bar bg-white fixed-top py-2 border-bottom-primary">
-      <div class="container-fluid h-100">
-        <div class="row align-items-center justify-content-between h-100">
-          <div class="col-auto col-lg">
-            <a class="btn btn-transparent-dark btn-sm" routerLink="/">
-              <i class="fas fa-arrow-left me-1"></i>
-              Overview Page
-            </a>
-          </div>
-          <div class="col col-auto d-none d-xl-block">
-            <div class="responsive-toggler justify-content-center">
-              <button class="btn btn-icon btn-transparent-dark mx-1 active">
-                <i class="fas fa-desktop"></i>
-              </button>
-              <button class="btn btn-icon btn-transparent-dark mx-1">
-                <i class="fas fa-tablet-alt"></i>
-              </button>
-              <button class="btn btn-icon btn-transparent-dark mx-1">
-                <i class="fas fa-mobile-alt"></i>
-              </button>
-            </div>
-          </div>
-          <div class="col text-end">
-            <a
-              class="btn btn-transparent-dark btn-sm me-2"
-              href="https://github.com/StartBootstrap/startbootstrap-sb-admin-2"
-            >
-              <i class="fab fa-github"></i>
-            </a>
-            <a
-              class="btn btn-primary-soft text-primary btn-sm d-none d-sm-inline-block me-2"
-              href="https://github.com/StartBootstrap/startbootstrap-sb-admin-2/archive/gh-pages.zip"
-            >
-              <i class="fas fa-download me-1"></i>
-              Free Download
-            </a>
-            <button class="btn btn-transparent-dark btn-sm btn-icon">
-              <i class="fas fa-xmark"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <nav class="navbar navbar-expand navbar-light bg-white topbar shadow mt-5">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
       <div class="container-fluid">
         <a class="navbar-brand" routerLink="/">ShopFront</a>
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item dropdown">
-            <a
-              class="nav-link dropdown-toggle"
-              id="adminDropdown"
-              href="#"
-              role="button"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-            >
-              Administrador
-            </a>
-            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminDropdown">
-              <li>
-                <a class="dropdown-item" routerLink="/admin/categoria">Categorías</a>
-              </li>
-            </ul>
-          </li>
-        </ul>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                id="adminDropdown"
+                href="#"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                Administrador
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminDropdown">
+                <li>
+                  <a class="dropdown-item" routerLink="/admin/categoria">Categorías</a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
       </div>
     </nav>
     <div class="container-fluid mt-4">
