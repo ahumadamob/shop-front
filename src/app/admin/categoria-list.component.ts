@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { CategoriaService } from '../services/categoria.service';
 import { Categoria } from '../models/categoria.model';
 
@@ -29,8 +29,8 @@ import { Categoria } from '../models/categoria.model';
               <th scope="row">{{ c.id }}</th>
               <td>{{ c.nombre }}</td>
               <td>
-                <a [routerLink]="[c.id]" class="btn btn-warning btn-sm me-2">Editar</a>
-                <button class="btn btn-danger btn-sm" (click)="deleteCategoria(c.id)">Eliminar</button>
+                <button type="button" class="btn btn-warning btn-sm me-2" (click)="editCategoria(c.id)">Editar</button>
+                <button type="button" class="btn btn-danger btn-sm" (click)="deleteCategoria(c.id)">Eliminar</button>
               </td>
             </tr>
           </tbody>
@@ -44,7 +44,11 @@ import { Categoria } from '../models/categoria.model';
 export class CategoriaListComponent implements OnInit {
   categorias: Categoria[] = [];
 
-  constructor(private categoriaService: CategoriaService) {}
+  constructor(
+    private categoriaService: CategoriaService,
+    private router: Router,
+    private route: ActivatedRoute
+  ) {}
 
   ngOnInit(): void {
     this.loadCategorias();
@@ -59,5 +63,9 @@ export class CategoriaListComponent implements OnInit {
   deleteCategoria(id: number): void {
     if (!confirm('¿Eliminar categoría?')) return;
     this.categoriaService.deleteCategoria(id).subscribe(() => this.loadCategorias());
+  }
+
+  editCategoria(id: number): void {
+    this.router.navigate([id], { relativeTo: this.route });
   }
 }
