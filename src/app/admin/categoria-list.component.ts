@@ -12,7 +12,7 @@ import { Categoria } from '../models/categoria.model';
     <div class="card border-secondary mb-3">
       <h3 class="card-header">Categorias</h3>
       <div class="card-body">
-        <div class="mb-3 text-start">
+        <div class="mb-3 text-end">
           <a routerLink="nueva" class="btn btn-success">Nueva Categoría</a>
         </div>
 
@@ -29,7 +29,7 @@ import { Categoria } from '../models/categoria.model';
               <th scope="row">{{ c.id }}</th>
               <td>{{ c.nombre }}</td>
               <td>
-                <a [routerLink]="[c.id]" class="btn btn-info btn-sm me-2">Editar</a>
+                <a [routerLink]="[c.id]" class="btn btn-warning btn-sm me-2">Editar</a>
                 <button class="btn btn-danger btn-sm" (click)="deleteCategoria(c.id)">Eliminar</button>
               </td>
             </tr>
