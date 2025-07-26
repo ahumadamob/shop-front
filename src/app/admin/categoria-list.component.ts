@@ -9,7 +9,7 @@ import { Categoria } from '../models/categoria.model';
   standalone: true,
   imports: [CommonModule, RouterModule],
   template: `
-    <div class="card border-primary mb-3">
+    <div class="card border-secondary mb-3">
       <div class="card-header">Categorías</div>
       <div class="card-body">
         <a routerLink="nueva" class="btn btn-primary mb-3">Nueva Categoría</a>
