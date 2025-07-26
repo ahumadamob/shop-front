@@ -9,6 +9,7 @@ import { RouterModule } from '@angular/router';
     <nav class="navbar navbar-dark bg-dark">
       <div class="container-fluid">
         <a class="navbar-brand" routerLink="/">ShopFront</a>
+        <a class="btn btn-outline-light" routerLink="/admin">Administrar</a>
       </div>
     </nav>
     <div class="container-fluid mt-4">
