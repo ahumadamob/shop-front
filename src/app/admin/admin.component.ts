@@ -6,16 +6,15 @@ import { RouterModule } from '@angular/router';
   standalone: true,
   imports: [RouterModule],
   template: `
-    <div class="row">
-      <div class="col-md-3 mb-4">
-        <div class="list-group">
-          <a href="#" class="list-group-item list-group-item-action">Gestionar Productos</a>
-          <a href="#" class="list-group-item list-group-item-action">Ver Ventas</a>
-          <a href="#" class="list-group-item list-group-item-action">Configuraci\u00f3n</a>
-          <a routerLink="categoria" class="list-group-item list-group-item-action">Categoria</a>
-        </div>
-      </div>
-      <div class="col">
+    <div class="d-flex">
+      <nav class="bg-light p-3" style="min-width: 200px;">
+        <ul class="nav flex-column">
+          <li class="nav-item">
+            <a routerLink="categoria" class="nav-link">Categoria</a>
+          </li>
+        </ul>
+      </nav>
+      <div class="flex-grow-1 p-3">
         <router-outlet></router-outlet>
       </div>
     </div>

@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { CatalogComponent } from './catalog/catalog.component';
 import { AdminComponent } from './admin/admin.component';
 import { CategoriaListComponent } from './admin/categoria-list.component';
+import { CategoriaFormComponent } from './admin/categoria-form.component';
 import { AdminHomeComponent } from './admin/admin-home.component';
 
 export const appRoutes: Routes = [
@@ -11,7 +12,9 @@ export const appRoutes: Routes = [
     component: AdminComponent,
     children: [
       { path: '', component: AdminHomeComponent },
-      { path: 'categoria', component: CategoriaListComponent }
+      { path: 'categoria', component: CategoriaListComponent },
+      { path: 'categoria/nueva', component: CategoriaFormComponent },
+      { path: 'categoria/:id', component: CategoriaFormComponent }
     ]
   }
 ];

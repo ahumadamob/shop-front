@@ -1,38 +1,71 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { CategoriaService } from '../services/categoria.service';
 import { Categoria } from '../models/categoria.model';
 
 @Component({
   selector: 'app-categoria-list',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   template: `
-    <h2>Categorías</h2>
-    <table class="table table-bordered" *ngIf="categorias.length">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Nombre</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let c of categorias">
-          <td>{{ c.id }}</td>
-          <td>{{ c.nombre }}</td>
-        </tr>
-      </tbody>
-    </table>
-    <p *ngIf="!categorias.length">No hay categorias.</p>
+    <div class="card border-secondary mb-3">
+      <h3 class="card-header">Categorias</h3>
+      <div class="card-body">
+        <div class="mb-3 text-end">
+          <a routerLink="nueva" class="btn btn-success">Nueva Categoría</a>
+        </div>
+
+        <table class="table table-hover" *ngIf="categorias.length">
+          <thead>
+            <tr>
+              <th scope="col">ID</th>
+              <th scope="col">Nombre</th>
+              <th scope="col">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let c of categorias">
+              <th scope="row">{{ c.id }}</th>
+              <td>{{ c.nombre }}</td>
+              <td>
+                <button type="button" class="btn btn-warning btn-sm me-2" (click)="editCategoria(c.id)">Editar</button>
+                <button type="button" class="btn btn-danger btn-sm" (click)="deleteCategoria(c.id)">Eliminar</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p *ngIf="!categorias.length">No hay categorias.</p>
+      </div>
+    </div>
   `,
   styles: []
 })
 export class CategoriaListComponent implements OnInit {
   categorias: Categoria[] = [];
 
-  constructor(private categoriaService: CategoriaService) {}
+  constructor(
+    private categoriaService: CategoriaService,
+    private router: Router,
+    private route: ActivatedRoute
+  ) {}
 
   ngOnInit(): void {
-    this.categoriaService.getCategorias().subscribe(data => this.categorias = data);
+    this.loadCategorias();
+  }
+
+  loadCategorias(): void {
+    this.categoriaService
+      .getCategorias()
+      .subscribe((data) => (this.categorias = data));
+  }
+
+  deleteCategoria(id: number): void {
+    if (!confirm('¿Eliminar categoría?')) return;
+    this.categoriaService.deleteCategoria(id).subscribe(() => this.loadCategorias());
+  }
+
+  editCategoria(id: number): void {
+    this.router.navigate([id], { relativeTo: this.route });
   }
 }
