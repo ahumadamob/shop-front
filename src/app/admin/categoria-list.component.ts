@@ -29,8 +29,8 @@ import { Categoria } from '../models/categoria.model';
               <th scope="row">{{ c.id }}</th>
               <td>{{ c.nombre }}</td>
               <td>
-                <button type="button" class="btn btn-warning btn-sm me-2" (click)="editCategoria(c.id)">Editar</button>
-                <button type="button" class="btn btn-danger btn-sm" (click)="deleteCategoria(c.id)">Eliminar</button>
+                <button type="button" class="btn btn-primary me-2" (click)="editCategoria(c.id)">Editar</button>
+                <button type="button" class="btn btn-danger" (click)="deleteCategoria(c.id)">Eliminar</button>
               </td>
             </tr>
           </tbody>
