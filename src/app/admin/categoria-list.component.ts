@@ -10,9 +10,11 @@ import { Categoria } from '../models/categoria.model';
   imports: [CommonModule, RouterModule],
   template: `
     <div class="card border-secondary mb-3">
-      <div class="card-header">Categorías</div>
+      <h3 class="card-header">Categorias</h3>
       <div class="card-body">
-        <a routerLink="nueva" class="btn btn-primary mb-3">Nueva Categoría</a>
+        <div class="mb-3 text-start">
+          <a routerLink="nueva" class="btn btn-success">Nueva Categoría</a>
+        </div>
 
         <table class="table table-hover" *ngIf="categorias.length">
           <thead>
