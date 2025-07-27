@@ -61,12 +61,39 @@ import { Categoria } from '../models/categoria.model';
       </div>
     </div>
     <div class="modal-backdrop fade show" *ngIf="deleteId !== null"></div>
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+      <div
+        class="toast show"
+        role="alert"
+        aria-live="assertive"
+        aria-atomic="true"
+        *ngIf="showToast"
+      >
+        <div class="toast-header">
+          <strong class="me-auto">Error</strong>
+          <small>Ahora</small>
+          <button
+            type="button"
+            class="btn-close ms-2 mb-1"
+            aria-label="Close"
+            (click)="showToast = false"
+          >
+            <span aria-hidden="true"></span>
+          </button>
+        </div>
+        <div class="toast-body">
+          No se puede eliminar esta categoría porque tiene categorías dependientes
+          activas
+        </div>
+      </div>
+    </div>
   `,
   styles: []
 })
 export class CategoriaListComponent implements OnInit {
   categorias: Categoria[] = [];
   deleteId: number | null = null;
+  showToast = false;
 
   constructor(
     private categoriaService: CategoriaService,
@@ -97,13 +124,26 @@ export class CategoriaListComponent implements OnInit {
     if (this.deleteId === null) return;
     this.categoriaService
       .deleteCategoria(this.deleteId)
-      .subscribe(() => {
-        this.deleteId = null;
-        this.loadCategorias();
+      .subscribe({
+        next: () => {
+          this.deleteId = null;
+          this.loadCategorias();
+        },
+        error: (err) => {
+          this.deleteId = null;
+          if (err.status === 409) {
+            this.showConflictToast();
+          }
+        }
       });
   }
 
   editCategoria(id: number): void {
     this.router.navigate([id], { relativeTo: this.route });
+  }
+
+  private showConflictToast(): void {
+    this.showToast = true;
+    setTimeout(() => (this.showToast = false), 5000);
   }
 }
