@@ -29,7 +29,7 @@ import { Producto } from '../models/producto.model';
             <tr *ngFor="let p of productos">
               <th scope="row">{{ p.id }}</th>
               <td>{{ p.nombre }}</td>
-              <td>{{ p.categorias.map(c => c.nombre).join(', ') }}</td>
+              <td>{{ categoriasLabel(p) }}</td>
               <td>
                 <button type="button" class="btn btn-primary me-2" (click)="editProducto(p.id)">Editar</button>
                 <button type="button" class="btn btn-danger" (click)="confirmDelete(p.id)">Eliminar</button>
@@ -104,5 +104,9 @@ export class ProductoListComponent implements OnInit {
 
   editProducto(id: number): void {
     this.router.navigate([id], { relativeTo: this.route });
+  }
+
+  categoriasLabel(p: Producto): string {
+    return p.categorias.map((c) => c.nombre).join(', ');
   }
 }
