@@ -6,17 +6,13 @@ import { RouterModule } from '@angular/router';
   standalone: true,
   imports: [RouterModule],
   template: `
-    <nav class="navbar navbar-expand navbar-dark bg-primary mb-4">
+    <nav class="navbar navbar-dark bg-dark">
       <div class="container-fluid">
         <a class="navbar-brand" routerLink="/">ShopFront</a>
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item">
-            <a class="nav-link" routerLink="/admin">Administrador</a>
-          </li>
-        </ul>
+        <a class="btn btn-outline-light" routerLink="/admin">Administrar</a>
       </div>
     </nav>
-    <div class="container">
+    <div class="container-fluid mt-4">
       <router-outlet></router-outlet>
     </div>
   `,
