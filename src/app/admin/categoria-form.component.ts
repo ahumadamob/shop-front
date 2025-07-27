@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CategoriaService } from '../services/categoria.service';
-import { CategoriaRequest } from '../models/categoria.model';
+import { CategoriaRequest, Categoria } from '../models/categoria.model';
 
 @Component({
   selector: 'app-categoria-form',
@@ -25,6 +25,24 @@ import { CategoriaRequest } from '../models/categoria.model';
           {{ errorMessages.nombre }}
         </div>
       </div>
+      <div class="has-danger mb-3">
+        <label class="form-label" for="parentId">Categoría padre</label>
+        <select
+          id="parentId"
+          class="form-select"
+          [ngClass]="{ 'is-invalid': errorMessages.parentId }"
+          [(ngModel)]="categoria.parentId"
+          name="parentId"
+        >
+          <option [ngValue]="undefined">Ninguno</option>
+          <option *ngFor="let cat of categorias" [ngValue]="cat.id">
+            {{ cat.nombre }}
+          </option>
+        </select>
+        <div class="invalid-feedback" *ngIf="errorMessages.parentId">
+          {{ errorMessages.parentId }}
+        </div>
+      </div>
       <button class="btn btn-primary" type="submit">Guardar</button>
       <button class="btn btn-secondary ms-2" type="button" (click)="volver()">Cancelar</button>
     </form>
@@ -35,6 +53,7 @@ export class CategoriaFormComponent implements OnInit {
   categoria: CategoriaRequest = { nombre: '' };
   isEdit = false;
   errorMessages: Record<string, string> = {};
+  categorias: Categoria[] = [];
 
   constructor(
     private service: CategoriaService,
@@ -43,6 +62,7 @@ export class CategoriaFormComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.service.getCategorias().subscribe((data) => (this.categorias = data));
     const idParam = this.route.snapshot.paramMap.get('id');
     if (idParam) {
       this.isEdit = true;
