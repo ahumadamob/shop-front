@@ -54,8 +54,8 @@ import { Categoria } from '../models/categoria.model';
             <p>¿Desea eliminar la categoría seleccionada?</p>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-primary" (click)="performDelete()">Eliminar</button>
-            <button type="button" class="btn btn-secondary" (click)="closeDeleteModal()">Cancelar</button>
+            <button type="button" class="btn btn-danger" (click)="performDelete()">Eliminar</button>
+            <button type="button" class="btn btn-success" (click)="closeDeleteModal()">Cancelar</button>
           </div>
         </div>
       </div>
