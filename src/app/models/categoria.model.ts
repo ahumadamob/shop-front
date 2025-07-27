@@ -1,6 +1,7 @@
 export interface Categoria {
   id: number;
   nombre: string;
+  path: string;
   parent?: Categoria;
 }
 

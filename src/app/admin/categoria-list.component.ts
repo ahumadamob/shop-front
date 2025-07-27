@@ -21,6 +21,7 @@ import { Categoria } from '../models/categoria.model';
             <tr>
               <th scope="col">ID</th>
               <th scope="col">Nombre</th>
+              <th scope="col">Path</th>
               <th scope="col">Acciones</th>
             </tr>
           </thead>
@@ -28,6 +29,7 @@ import { Categoria } from '../models/categoria.model';
             <tr *ngFor="let c of categorias">
               <th scope="row">{{ c.id }}</th>
               <td>{{ c.nombre }}</td>
+              <td>{{ c.path }}</td>
               <td>
                 <button type="button" class="btn btn-primary me-2" (click)="editCategoria(c.id)">Editar</button>
                 <button type="button" class="btn btn-danger" (click)="deleteCategoria(c.id)">Eliminar</button>
