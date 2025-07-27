@@ -32,7 +32,7 @@ import { Categoria } from '../models/categoria.model';
               <td>{{ c.path }}</td>
               <td>
                 <button type="button" class="btn btn-primary me-2" (click)="editCategoria(c.id)">Editar</button>
-                <button type="button" class="btn btn-danger" (click)="deleteCategoria(c.id)">Eliminar</button>
+                <button type="button" class="btn btn-danger" (click)="confirmDelete(c.id)">Eliminar</button>
               </td>
             </tr>
           </tbody>
@@ -40,11 +40,33 @@ import { Categoria } from '../models/categoria.model';
         <p *ngIf="!categorias.length">No hay categorias.</p>
       </div>
     </div>
+
+    <div class="modal show d-block" tabindex="-1" *ngIf="deleteId !== null">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Confirmar eliminación</h5>
+            <button type="button" class="btn-close" aria-label="Close" (click)="closeDeleteModal()">
+              <span aria-hidden="true"></span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p>¿Desea eliminar la categoría seleccionada?</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" (click)="performDelete()">Eliminar</button>
+            <button type="button" class="btn btn-secondary" (click)="closeDeleteModal()">Cancelar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-backdrop fade show" *ngIf="deleteId !== null"></div>
   `,
   styles: []
 })
 export class CategoriaListComponent implements OnInit {
   categorias: Categoria[] = [];
+  deleteId: number | null = null;
 
   constructor(
     private categoriaService: CategoriaService,
@@ -62,9 +84,23 @@ export class CategoriaListComponent implements OnInit {
       .subscribe((data) => (this.categorias = data));
   }
 
-  deleteCategoria(id: number): void {
-    if (!confirm('¿Eliminar categoría?')) return;
-    this.categoriaService.deleteCategoria(id).subscribe(() => this.loadCategorias());
+
+  confirmDelete(id: number): void {
+    this.deleteId = id;
+  }
+
+  closeDeleteModal(): void {
+    this.deleteId = null;
+  }
+
+  performDelete(): void {
+    if (this.deleteId === null) return;
+    this.categoriaService
+      .deleteCategoria(this.deleteId)
+      .subscribe(() => {
+        this.deleteId = null;
+        this.loadCategorias();
+      });
   }
 
   editCategoria(id: number): void {
