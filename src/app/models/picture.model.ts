@@ -1,6 +1,7 @@
 export interface Picture {
   id: number;
   url: string;
+  path: string;
   fileName: string;
   mimeType: string;
   size: number;
@@ -11,6 +12,7 @@ export interface Picture {
 
 export interface PictureRequest {
   url: string;
+  path?: string;
   fileName: string;
   mimeType: string;
   size: number;
