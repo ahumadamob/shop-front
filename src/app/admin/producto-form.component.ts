@@ -14,12 +14,7 @@ import { Picture } from '../models/picture.model';
 
 interface PictureForm {
   file?: File;
-  url: string;
-  path?: string;
-  fileName: string;
-  mimeType: string;
-  size: number;
-  order?: number;
+  previewUrl: string;
   cover: boolean;
 }
 
@@ -79,41 +74,11 @@ interface PictureForm {
             />
           </div>
           <img
-            *ngIf="pic.url"
-            [src]="pic.url"
+            *ngIf="pic.previewUrl"
+            [src]="pic.previewUrl"
             class="img-thumbnail mb-2"
             style="max-width: 200px"
           />
-          <div *ngIf="pic.fileName">
-            <div class="mb-2">
-              <label class="form-label">Nombre archivo</label>
-              <input
-                class="form-control"
-                [(ngModel)]="pic.fileName"
-                name="fileName{{ i }}"
-                readonly
-              />
-            </div>
-            <div class="mb-2">
-              <label class="form-label">Mime Type</label>
-              <input
-                class="form-control"
-                [(ngModel)]="pic.mimeType"
-                name="mimeType{{ i }}"
-                readonly
-              />
-            </div>
-            <div class="mb-2">
-              <label class="form-label">Tamaño</label>
-              <input
-                type="number"
-                class="form-control"
-                [(ngModel)]="pic.size"
-                name="size{{ i }}"
-                readonly
-              />
-            </div>
-          </div>
           <div class="form-check mb-2">
             <input
               class="form-check-input"
@@ -181,12 +146,8 @@ export class ProductoFormComponent implements OnInit {
           };
           this.pictures =
             p.pictureGallery?.pictures.map((pic) => ({
-              url: pic.url,
-              path: pic.path,
-              fileName: pic.fileName,
-              mimeType: pic.mimeType,
-              size: pic.size,
-              order: pic.order,
+              file: undefined,
+              previewUrl: pic.url,
               cover: pic.cover
             })) || [];
         });
@@ -247,14 +208,7 @@ export class ProductoFormComponent implements OnInit {
   }
 
   addPicture(): void {
-    this.pictures.push({
-      file: undefined,
-      url: '',
-      fileName: '',
-      mimeType: '',
-      size: 0,
-      cover: false
-    });
+    this.pictures.push({ file: undefined, previewUrl: '', cover: false });
   }
 
   onFilesSelected(event: Event, i: number): void {
@@ -263,29 +217,26 @@ export class ProductoFormComponent implements OnInit {
     if (!files || files.length === 0) return;
 
     Array.from(files).forEach((file, idx) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const picData: PictureForm = {
-          file,
-          url: reader.result as string,
-          fileName: file.name,
-          mimeType: file.type,
-          size: file.size,
-          cover: false
-        };
-        if (idx === 0) {
-          this.pictures[i] = { ...this.pictures[i], ...picData };
-        } else {
-          this.pictures.splice(i + idx, 0, picData);
-        }
+      const picData: PictureForm = {
+        file,
+        previewUrl: URL.createObjectURL(file),
+        cover: false
       };
-      reader.readAsDataURL(file);
+      if (idx === 0) {
+        this.pictures[i] = { ...this.pictures[i], ...picData };
+      } else {
+        this.pictures.splice(i + idx, 0, picData);
+      }
     });
 
     input.value = '';
   }
 
   removePicture(i: number): void {
+    const pic = this.pictures[i];
+    if (pic.previewUrl) {
+      URL.revokeObjectURL(pic.previewUrl);
+    }
     this.pictures.splice(i, 1);
   }
 }
