@@ -136,21 +136,31 @@ export class ProductoFormComponent implements OnInit {
     if (idParam) {
       this.isEdit = true;
       const id = Number(idParam);
-      this.service
-        .getProducto(id)
-        .subscribe((p) => {
-          this.producto = {
-            nombre: p.nombre,
-            categoriaIds: p.categorias.map((c) => c.id),
-            pictureGalleryId: p.pictureGallery?.id
-          };
-          this.pictures =
-            p.pictureGallery?.pictures.map((pic) => ({
+      this.service.getProducto(id).subscribe((p) => {
+        this.producto = {
+          nombre: p.nombre,
+          categoriaIds: p.categorias.map((c) => c.id),
+          pictureGalleryId: p.pictureGallery?.id
+        };
+        const pics = p.pictureGallery?.pictures || [];
+        if (pics.length) {
+          forkJoin(
+            pics.map((pic) =>
+              this.pictureService
+                .getPictureFile(pic.id)
+                .pipe(map((blob) => ({ blob, pic })))
+            )
+          ).subscribe((results) => {
+            this.pictures = results.map(({ blob, pic }) => ({
               file: undefined,
-              previewUrl: pic.url,
+              previewUrl: URL.createObjectURL(blob),
               cover: pic.cover
-            })) || [];
-        });
+            }));
+          });
+        } else {
+          this.pictures = [];
+        }
+      });
     }
   }
 
