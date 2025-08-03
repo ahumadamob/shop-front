@@ -22,6 +22,12 @@ export class PictureService {
       .pipe(map((resp) => resp.data));
   }
 
+  getPictureFile(id: number): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/pictures/${id}/file`, {
+      responseType: 'blob'
+    });
+  }
+
   createPicture(file: File, order?: number, cover?: boolean): Observable<Picture> {
     const formData = new FormData();
     formData.append('file', file);
