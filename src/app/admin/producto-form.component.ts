@@ -171,6 +171,7 @@ export class ProductoFormComponent implements OnInit {
           this.pictures =
             p.pictureGallery?.pictures.map((pic) => ({
               url: pic.url,
+              path: pic.path,
               fileName: pic.fileName,
               mimeType: pic.mimeType,
               size: pic.size,
@@ -260,7 +261,7 @@ export class ProductoFormComponent implements OnInit {
           cover: false
         };
         if (idx === 0) {
-          this.pictures[i] = { ...this.pictures[i], ...picData };
+          this.pictures[i] = { ...this.pictures[i], ...picData, path: undefined };
         } else {
           this.pictures.splice(i + idx, 0, picData);
         }
