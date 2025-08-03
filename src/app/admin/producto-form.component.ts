@@ -4,8 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ProductoService } from '../services/producto.service';
 import { CategoriaService } from '../services/categoria.service';
+import { PictureService } from '../services/picture.service';
+import { PictureGalleryService } from '../services/picture-gallery.service';
 import { ProductoRequest } from '../models/producto.model';
 import { Categoria } from '../models/categoria.model';
+import { PictureRequest } from '../models/picture.model';
+import { forkJoin, of } from 'rxjs';
+import { switchMap, map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-producto-form',
@@ -45,6 +50,71 @@ import { Categoria } from '../models/categoria.model';
           {{ errorMessages.categoriaIds }}
         </div>
       </div>
+
+      <div class="mb-3">
+        <label class="form-label">Imágenes</label>
+        <div
+          class="border rounded p-2 mb-2"
+          *ngFor="let pic of pictures; let i = index"
+        >
+          <div class="mb-2">
+            <label class="form-label">URL</label>
+            <input
+              class="form-control"
+              [(ngModel)]="pic.url"
+              name="url{{ i }}"
+            />
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Nombre archivo</label>
+            <input
+              class="form-control"
+              [(ngModel)]="pic.fileName"
+              name="fileName{{ i }}"
+            />
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Mime Type</label>
+            <input
+              class="form-control"
+              [(ngModel)]="pic.mimeType"
+              name="mimeType{{ i }}"
+            />
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Tamaño</label>
+            <input
+              type="number"
+              class="form-control"
+              [(ngModel)]="pic.size"
+              name="size{{ i }}"
+            />
+          </div>
+          <div class="form-check mb-2">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              [(ngModel)]="pic.cover"
+              name="cover{{ i }}"
+            />
+            <label class="form-check-label">Portada</label>
+          </div>
+          <button
+            type="button"
+            class="btn btn-sm btn-danger"
+            (click)="removePicture(i)"
+          >
+            Eliminar
+          </button>
+        </div>
+        <button
+          type="button"
+          class="btn btn-sm btn-secondary"
+          (click)="addPicture()"
+        >
+          Agregar Imagen
+        </button>
+      </div>
       <button class="btn btn-primary" type="submit">Guardar</button>
       <button class="btn btn-secondary ms-2" type="button" (click)="volver()">
         Cancelar
@@ -58,10 +128,13 @@ export class ProductoFormComponent implements OnInit {
   isEdit = false;
   errorMessages: Record<string, string> = {};
   categorias: Categoria[] = [];
+  pictures: PictureRequest[] = [];
 
   constructor(
     private service: ProductoService,
     private categoriaService: CategoriaService,
+    private pictureService: PictureService,
+    private pictureGalleryService: PictureGalleryService,
     private route: ActivatedRoute,
     private router: Router
   ) {}
@@ -76,27 +149,64 @@ export class ProductoFormComponent implements OnInit {
       const id = Number(idParam);
       this.service
         .getProducto(id)
-        .subscribe(
-          (p) =>
-            (this.producto = {
-              nombre: p.nombre,
-              categoriaIds: p.categorias.map((c) => c.id)
-            })
-        );
+        .subscribe((p) => {
+          this.producto = {
+            nombre: p.nombre,
+            categoriaIds: p.categorias.map((c) => c.id),
+            pictureGalleryId: p.pictureGallery?.id
+          };
+          this.pictures =
+            p.pictureGallery?.pictures.map((pic) => ({
+              url: pic.url,
+              fileName: pic.fileName,
+              mimeType: pic.mimeType,
+              size: pic.size,
+              order: pic.order,
+              cover: pic.cover
+            })) || [];
+        });
     }
   }
 
   submit(): void {
     const idParam = this.route.snapshot.paramMap.get('id');
     this.errorMessages = {};
-    const obs =
-      this.isEdit && idParam
-        ? this.service.updateProducto(Number(idParam), this.producto)
-        : this.service.createProducto(this.producto);
-    obs.subscribe({
-      next: () => this.volver(),
-      error: (err) => this.handleErrors(err)
-    });
+    const createPictures$ = this.pictures.length
+      ? forkJoin(
+          this.pictures.map((p, i) =>
+            this.pictureService.createPicture({ ...p, order: i })
+          )
+        )
+      : of([]);
+
+    createPictures$
+      .pipe(
+        switchMap((pics: any[]) => {
+          if (pics.length) {
+            const pictureIds = pics.map((pic) => pic.id);
+            return this.pictureGalleryService
+              .createGallery({
+                description: this.producto.nombre,
+                pictureIds
+              })
+              .pipe(map((g) => g.id));
+          }
+          return of(undefined);
+        }),
+        switchMap((galleryId) => {
+          const req: ProductoRequest = {
+            ...this.producto,
+            pictureGalleryId: galleryId
+          };
+          return this.isEdit && idParam
+            ? this.service.updateProducto(Number(idParam), req)
+            : this.service.createProducto(req);
+        })
+      )
+      .subscribe({
+        next: () => this.volver(),
+        error: (err) => this.handleErrors(err)
+      });
   }
 
   volver(): void {
@@ -109,5 +219,19 @@ export class ProductoFormComponent implements OnInit {
         this.errorMessages[e.field] = e.message;
       }
     }
+  }
+
+  addPicture(): void {
+    this.pictures.push({
+      url: '',
+      fileName: '',
+      mimeType: '',
+      size: 1,
+      cover: false
+    });
+  }
+
+  removePicture(i: number): void {
+    this.pictures.splice(i, 1);
   }
 }
