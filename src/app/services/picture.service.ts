@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { Picture, PictureRequest } from '../models/picture.model';
+import { Picture } from '../models/picture.model';
 
 @Injectable({ providedIn: 'root' })
 export class PictureService {
@@ -22,15 +22,42 @@ export class PictureService {
       .pipe(map((resp) => resp.data));
   }
 
-  createPicture(req: PictureRequest): Observable<Picture> {
+  createPicture(file: File, order?: number, cover?: boolean): Observable<Picture> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    let params = new HttpParams();
+    if (order !== undefined) {
+      params = params.set('order', order.toString());
+    }
+    if (cover !== undefined) {
+      params = params.set('cover', cover.toString());
+    }
+
     return this.http
-      .post<{ data: Picture }>(`${this.baseUrl}/pictures`, req)
+      .post<{ data: Picture }>(`${this.baseUrl}/pictures`, formData, { params })
       .pipe(map((resp) => resp.data));
   }
 
-  updatePicture(id: number, req: PictureRequest): Observable<Picture> {
+  updatePicture(
+    id: number,
+    file: File,
+    order?: number,
+    cover?: boolean
+  ): Observable<Picture> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    let params = new HttpParams();
+    if (order !== undefined) {
+      params = params.set('order', order.toString());
+    }
+    if (cover !== undefined) {
+      params = params.set('cover', cover.toString());
+    }
+
     return this.http
-      .put<{ data: Picture }>(`${this.baseUrl}/pictures/${id}`, req)
+      .put<{ data: Picture }>(`${this.baseUrl}/pictures/${id}`, formData, { params })
       .pipe(map((resp) => resp.data));
   }
 

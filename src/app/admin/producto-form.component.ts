@@ -8,9 +8,20 @@ import { PictureService } from '../services/picture.service';
 import { PictureGalleryService } from '../services/picture-gallery.service';
 import { ProductoRequest } from '../models/producto.model';
 import { Categoria } from '../models/categoria.model';
-import { PictureRequest } from '../models/picture.model';
 import { forkJoin, of } from 'rxjs';
 import { switchMap, map } from 'rxjs/operators';
+import { Picture } from '../models/picture.model';
+
+interface PictureForm {
+  file?: File;
+  url: string;
+  path?: string;
+  fileName: string;
+  mimeType: string;
+  size: number;
+  order?: number;
+  cover: boolean;
+}
 
 @Component({
   selector: 'app-producto-form',
@@ -141,7 +152,7 @@ export class ProductoFormComponent implements OnInit {
   isEdit = false;
   errorMessages: Record<string, string> = {};
   categorias: Categoria[] = [];
-  pictures: PictureRequest[] = [];
+  pictures: PictureForm[] = [];
 
   constructor(
     private service: ProductoService,
@@ -188,14 +199,14 @@ export class ProductoFormComponent implements OnInit {
     const createPictures$ = this.pictures.length
       ? forkJoin(
           this.pictures.map((p, i) =>
-            this.pictureService.createPicture({ ...p, order: i })
+            this.pictureService.createPicture(p.file!, i, p.cover)
           )
         )
-      : of([]);
+      : of<Picture[]>([]);
 
     createPictures$
       .pipe(
-        switchMap((pics: any[]) => {
+        switchMap((pics: Picture[]) => {
           if (pics.length) {
             const pictureIds = pics.map((pic) => pic.id);
             return this.pictureGalleryService
@@ -237,6 +248,7 @@ export class ProductoFormComponent implements OnInit {
 
   addPicture(): void {
     this.pictures.push({
+      file: undefined,
       url: '',
       fileName: '',
       mimeType: '',
@@ -253,7 +265,8 @@ export class ProductoFormComponent implements OnInit {
     Array.from(files).forEach((file, idx) => {
       const reader = new FileReader();
       reader.onload = () => {
-        const picData: PictureRequest = {
+        const picData: PictureForm = {
+          file,
           url: reader.result as string,
           fileName: file.name,
           mimeType: file.type,
@@ -261,7 +274,7 @@ export class ProductoFormComponent implements OnInit {
           cover: false
         };
         if (idx === 0) {
-          this.pictures[i] = { ...this.pictures[i], ...picData, path: undefined };
+          this.pictures[i] = { ...this.pictures[i], ...picData };
         } else {
           this.pictures.splice(i + idx, 0, picData);
         }
