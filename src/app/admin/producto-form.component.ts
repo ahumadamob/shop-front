@@ -58,37 +58,43 @@ import { switchMap, map } from 'rxjs/operators';
           *ngFor="let pic of pictures; let i = index"
         >
           <div class="mb-2">
-            <label class="form-label">URL</label>
+            <label class="form-label">Archivo</label>
             <input
+              type="file"
+              accept="image/*"
               class="form-control"
-              [(ngModel)]="pic.url"
-              name="url{{ i }}"
+              (change)="onFileSelected($event, i)"
             />
           </div>
-          <div class="mb-2">
-            <label class="form-label">Nombre archivo</label>
-            <input
-              class="form-control"
-              [(ngModel)]="pic.fileName"
-              name="fileName{{ i }}"
-            />
-          </div>
-          <div class="mb-2">
-            <label class="form-label">Mime Type</label>
-            <input
-              class="form-control"
-              [(ngModel)]="pic.mimeType"
-              name="mimeType{{ i }}"
-            />
-          </div>
-          <div class="mb-2">
-            <label class="form-label">Tamaño</label>
-            <input
-              type="number"
-              class="form-control"
-              [(ngModel)]="pic.size"
-              name="size{{ i }}"
-            />
+          <div *ngIf="pic.fileName">
+            <div class="mb-2">
+              <label class="form-label">Nombre archivo</label>
+              <input
+                class="form-control"
+                [(ngModel)]="pic.fileName"
+                name="fileName{{ i }}"
+                readonly
+              />
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Mime Type</label>
+              <input
+                class="form-control"
+                [(ngModel)]="pic.mimeType"
+                name="mimeType{{ i }}"
+                readonly
+              />
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Tamaño</label>
+              <input
+                type="number"
+                class="form-control"
+                [(ngModel)]="pic.size"
+                name="size{{ i }}"
+                readonly
+              />
+            </div>
           </div>
           <div class="form-check mb-2">
             <input
@@ -226,9 +232,26 @@ export class ProductoFormComponent implements OnInit {
       url: '',
       fileName: '',
       mimeType: '',
-      size: 1,
+      size: 0,
       cover: false
     });
+  }
+
+  onFileSelected(event: Event, i: number): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files && input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.pictures[i] = {
+        ...this.pictures[i],
+        url: reader.result as string,
+        fileName: file.name,
+        mimeType: file.type,
+        size: file.size
+      };
+    };
+    reader.readAsDataURL(file);
   }
 
   removePicture(i: number): void {
