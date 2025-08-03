@@ -62,10 +62,17 @@ import { switchMap, map } from 'rxjs/operators';
             <input
               type="file"
               accept="image/*"
+              multiple
               class="form-control"
-              (change)="onFileSelected($event, i)"
+              (change)="onFilesSelected($event, i)"
             />
           </div>
+          <img
+            *ngIf="pic.url"
+            [src]="pic.url"
+            class="img-thumbnail mb-2"
+            style="max-width: 200px"
+          />
           <div *ngIf="pic.fileName">
             <div class="mb-2">
               <label class="form-label">Nombre archivo</label>
@@ -237,21 +244,31 @@ export class ProductoFormComponent implements OnInit {
     });
   }
 
-  onFileSelected(event: Event, i: number): void {
+  onFilesSelected(event: Event, i: number): void {
     const input = event.target as HTMLInputElement;
-    const file = input.files && input.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      this.pictures[i] = {
-        ...this.pictures[i],
-        url: reader.result as string,
-        fileName: file.name,
-        mimeType: file.type,
-        size: file.size
+    const files = input.files;
+    if (!files || files.length === 0) return;
+
+    Array.from(files).forEach((file, idx) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const picData: PictureRequest = {
+          url: reader.result as string,
+          fileName: file.name,
+          mimeType: file.type,
+          size: file.size,
+          cover: false
+        };
+        if (idx === 0) {
+          this.pictures[i] = { ...this.pictures[i], ...picData };
+        } else {
+          this.pictures.splice(i + idx, 0, picData);
+        }
       };
-    };
-    reader.readAsDataURL(file);
+      reader.readAsDataURL(file);
+    });
+
+    input.value = '';
   }
 
   removePicture(i: number): void {
