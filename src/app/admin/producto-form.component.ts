@@ -13,6 +13,7 @@ import { switchMap, map } from 'rxjs/operators';
 import { Picture } from '../models/picture.model';
 
 interface PictureForm {
+  id?: number;
   file?: File;
   previewUrl: string;
   cover: boolean;
@@ -152,6 +153,7 @@ export class ProductoFormComponent implements OnInit {
             )
           ).subscribe((results) => {
             this.pictures = results.map(({ blob, pic }) => ({
+              id: pic.id,
               file: undefined,
               previewUrl: URL.createObjectURL(blob),
               cover: pic.cover
@@ -167,25 +169,38 @@ export class ProductoFormComponent implements OnInit {
   submit(): void {
     const idParam = this.route.snapshot.paramMap.get('id');
     this.errorMessages = {};
-    const createPictures$ = this.pictures.length
+
+    const picturesWithIndex = this.pictures.map((p, index) => ({ ...p, index }));
+    const newPictures = picturesWithIndex.filter((p) => p.file);
+    const existingPictureIds = picturesWithIndex
+      .filter((p) => !p.file && p.id)
+      .map((p) => p.id!);
+
+    const createPictures$ = newPictures.length
       ? forkJoin(
-          this.pictures.map((p, i) =>
-            this.pictureService.createPicture(p.file!, i, p.cover)
+          newPictures.map((p) =>
+            this.pictureService.createPicture(p.file!, p.index, p.cover)
           )
         )
       : of<Picture[]>([]);
 
     createPictures$
       .pipe(
-        switchMap((pics: Picture[]) => {
-          if (pics.length) {
-            const pictureIds = pics.map((pic) => pic.id);
-            return this.pictureGalleryService
-              .createGallery({
-                description: this.producto.nombre,
-                pictureIds
-              })
-              .pipe(map((g) => g.id));
+        switchMap((createdPics: Picture[]) => {
+          const newIds = createdPics.map((pic) => pic.id);
+          const pictureIds = [...existingPictureIds, ...newIds];
+          if (pictureIds.length) {
+            const galleryReq = {
+              description: this.producto.nombre,
+              pictureIds
+            };
+            return this.producto.pictureGalleryId
+              ? this.pictureGalleryService
+                  .updateGallery(this.producto.pictureGalleryId, galleryReq)
+                  .pipe(map((g) => g.id))
+              : this.pictureGalleryService
+                  .createGallery(galleryReq)
+                  .pipe(map((g) => g.id));
           }
           return of(undefined);
         }),
