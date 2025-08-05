@@ -170,13 +170,14 @@ export class ProductoFormComponent implements OnInit {
     const idParam = this.route.snapshot.paramMap.get('id');
     this.errorMessages = {};
 
-    const picturesWithIndex = this.pictures.map((p, index) => ({ ...p, index }));
-    const newPictures = picturesWithIndex.filter((p) => p.file);
-    const existingPictureIds = picturesWithIndex
-      .filter((p) => !p.file && p.id)
-      .map((p) => p.id!);
+    const picturesWithIndex = this.pictures.map((p, index) => ({
+      ...p,
+      index
+    }));
+    const newPictures = picturesWithIndex.filter((p) => !p.id);
+    const updatePictures = picturesWithIndex.filter((p) => p.id);
 
-    const createPictures$ = newPictures.length
+    const create$ = newPictures.length
       ? forkJoin(
           newPictures.map((p) =>
             this.pictureService.createPicture(p.file!, p.index, p.cover)
@@ -184,11 +185,28 @@ export class ProductoFormComponent implements OnInit {
         )
       : of<Picture[]>([]);
 
-    createPictures$
+    const update$ = updatePictures.length
+      ? forkJoin(
+          updatePictures.map((p) =>
+            this.pictureService.updatePicture(
+              p.id!,
+              p.file ?? undefined,
+              p.index,
+              p.cover
+            )
+          )
+        )
+      : of<Picture[]>([]);
+
+    forkJoin([create$, update$])
       .pipe(
-        switchMap((createdPics: Picture[]) => {
-          const newIds = createdPics.map((pic) => pic.id);
-          const pictureIds = [...existingPictureIds, ...newIds];
+        switchMap(([createdPics]) => {
+          const idMap = new Map<number, number>();
+          newPictures.forEach((p, i) => idMap.set(p.index, createdPics[i].id));
+          updatePictures.forEach((p) => idMap.set(p.index, p.id!));
+          const pictureIds = Array.from(idMap.entries())
+            .sort((a, b) => a[0] - b[0])
+            .map(([_, id]) => id);
           if (pictureIds.length) {
             const galleryReq = {
               description: this.producto.nombre,
