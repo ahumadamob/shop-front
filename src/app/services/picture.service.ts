@@ -47,12 +47,14 @@ export class PictureService {
 
   updatePicture(
     id: number,
-    file: File,
+    file?: File,
     order?: number,
     cover?: boolean
   ): Observable<Picture> {
     const formData = new FormData();
-    formData.append('file', file);
+    if (file) {
+      formData.append('file', file);
+    }
 
     let params = new HttpParams();
     if (order !== undefined) {
