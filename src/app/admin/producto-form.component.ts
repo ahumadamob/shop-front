@@ -8,9 +8,16 @@ import { PictureService } from '../services/picture.service';
 import { PictureGalleryService } from '../services/picture-gallery.service';
 import { ProductoRequest } from '../models/producto.model';
 import { Categoria } from '../models/categoria.model';
-import { PictureRequest } from '../models/picture.model';
 import { forkJoin, of } from 'rxjs';
 import { switchMap, map } from 'rxjs/operators';
+import { Picture } from '../models/picture.model';
+
+interface PictureForm {
+  id?: number;
+  file?: File;
+  previewUrl: string;
+  cover: boolean;
+}
 
 @Component({
   selector: 'app-producto-form',
@@ -68,41 +75,11 @@ import { switchMap, map } from 'rxjs/operators';
             />
           </div>
           <img
-            *ngIf="pic.url"
-            [src]="pic.url"
+            *ngIf="pic.previewUrl"
+            [src]="pic.previewUrl"
             class="img-thumbnail mb-2"
             style="max-width: 200px"
           />
-          <div *ngIf="pic.fileName">
-            <div class="mb-2">
-              <label class="form-label">Nombre archivo</label>
-              <input
-                class="form-control"
-                [(ngModel)]="pic.fileName"
-                name="fileName{{ i }}"
-                readonly
-              />
-            </div>
-            <div class="mb-2">
-              <label class="form-label">Mime Type</label>
-              <input
-                class="form-control"
-                [(ngModel)]="pic.mimeType"
-                name="mimeType{{ i }}"
-                readonly
-              />
-            </div>
-            <div class="mb-2">
-              <label class="form-label">Tamaño</label>
-              <input
-                type="number"
-                class="form-control"
-                [(ngModel)]="pic.size"
-                name="size{{ i }}"
-                readonly
-              />
-            </div>
-          </div>
           <div class="form-check mb-2">
             <input
               class="form-check-input"
@@ -141,7 +118,7 @@ export class ProductoFormComponent implements OnInit {
   isEdit = false;
   errorMessages: Record<string, string> = {};
   categorias: Categoria[] = [];
-  pictures: PictureRequest[] = [];
+  pictures: PictureForm[] = [];
 
   constructor(
     private service: ProductoService,
@@ -160,49 +137,88 @@ export class ProductoFormComponent implements OnInit {
     if (idParam) {
       this.isEdit = true;
       const id = Number(idParam);
-      this.service
-        .getProducto(id)
-        .subscribe((p) => {
-          this.producto = {
-            nombre: p.nombre,
-            categoriaIds: p.categorias.map((c) => c.id),
-            pictureGalleryId: p.pictureGallery?.id
-          };
-          this.pictures =
-            p.pictureGallery?.pictures.map((pic) => ({
-              url: pic.url,
-              fileName: pic.fileName,
-              mimeType: pic.mimeType,
-              size: pic.size,
-              order: pic.order,
+      this.service.getProducto(id).subscribe((p) => {
+        this.producto = {
+          nombre: p.nombre,
+          categoriaIds: p.categorias.map((c) => c.id),
+          pictureGalleryId: p.pictureGallery?.id
+        };
+        const pics = p.pictureGallery?.pictures || [];
+        if (pics.length) {
+          forkJoin(
+            pics.map((pic) =>
+              this.pictureService
+                .getPictureFile(pic.id)
+                .pipe(map((blob) => ({ blob, pic })))
+            )
+          ).subscribe((results) => {
+            this.pictures = results.map(({ blob, pic }) => ({
+              id: pic.id,
+              file: undefined,
+              previewUrl: URL.createObjectURL(blob),
               cover: pic.cover
-            })) || [];
-        });
+            }));
+          });
+        } else {
+          this.pictures = [];
+        }
+      });
     }
   }
 
   submit(): void {
     const idParam = this.route.snapshot.paramMap.get('id');
     this.errorMessages = {};
-    const createPictures$ = this.pictures.length
+
+    const picturesWithIndex = this.pictures.map((p, index) => ({
+      ...p,
+      index
+    }));
+    const newPictures = picturesWithIndex.filter((p) => !p.id);
+    const updatePictures = picturesWithIndex.filter((p) => p.id);
+
+    const create$ = newPictures.length
       ? forkJoin(
-          this.pictures.map((p, i) =>
-            this.pictureService.createPicture({ ...p, order: i })
+          newPictures.map((p) =>
+            this.pictureService.createPicture(p.file!, p.index, p.cover)
           )
         )
-      : of([]);
+      : of<Picture[]>([]);
 
-    createPictures$
+    const update$ = updatePictures.length
+      ? forkJoin(
+          updatePictures.map((p) =>
+            this.pictureService.updatePicture(
+              p.id!,
+              p.file ?? undefined,
+              p.index,
+              p.cover
+            )
+          )
+        )
+      : of<Picture[]>([]);
+
+    forkJoin([create$, update$])
       .pipe(
-        switchMap((pics: any[]) => {
-          if (pics.length) {
-            const pictureIds = pics.map((pic) => pic.id);
-            return this.pictureGalleryService
-              .createGallery({
-                description: this.producto.nombre,
-                pictureIds
-              })
-              .pipe(map((g) => g.id));
+        switchMap(([createdPics]) => {
+          const idMap = new Map<number, number>();
+          newPictures.forEach((p, i) => idMap.set(p.index, createdPics[i].id));
+          updatePictures.forEach((p) => idMap.set(p.index, p.id!));
+          const pictureIds = Array.from(idMap.entries())
+            .sort((a, b) => a[0] - b[0])
+            .map(([_, id]) => id);
+          if (pictureIds.length) {
+            const galleryReq = {
+              description: this.producto.nombre,
+              pictureIds
+            };
+            return this.producto.pictureGalleryId
+              ? this.pictureGalleryService
+                  .updateGallery(this.producto.pictureGalleryId, galleryReq)
+                  .pipe(map((g) => g.id))
+              : this.pictureGalleryService
+                  .createGallery(galleryReq)
+                  .pipe(map((g) => g.id));
           }
           return of(undefined);
         }),
@@ -235,13 +251,7 @@ export class ProductoFormComponent implements OnInit {
   }
 
   addPicture(): void {
-    this.pictures.push({
-      url: '',
-      fileName: '',
-      mimeType: '',
-      size: 0,
-      cover: false
-    });
+    this.pictures.push({ file: undefined, previewUrl: '', cover: false });
   }
 
   onFilesSelected(event: Event, i: number): void {
@@ -250,28 +260,26 @@ export class ProductoFormComponent implements OnInit {
     if (!files || files.length === 0) return;
 
     Array.from(files).forEach((file, idx) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const picData: PictureRequest = {
-          url: reader.result as string,
-          fileName: file.name,
-          mimeType: file.type,
-          size: file.size,
-          cover: false
-        };
-        if (idx === 0) {
-          this.pictures[i] = { ...this.pictures[i], ...picData };
-        } else {
-          this.pictures.splice(i + idx, 0, picData);
-        }
+      const picData: PictureForm = {
+        file,
+        previewUrl: URL.createObjectURL(file),
+        cover: false
       };
-      reader.readAsDataURL(file);
+      if (idx === 0) {
+        this.pictures[i] = { ...this.pictures[i], ...picData };
+      } else {
+        this.pictures.splice(i + idx, 0, picData);
+      }
     });
 
     input.value = '';
   }
 
   removePicture(i: number): void {
+    const pic = this.pictures[i];
+    if (pic.previewUrl) {
+      URL.revokeObjectURL(pic.previewUrl);
+    }
     this.pictures.splice(i, 1);
   }
 }
