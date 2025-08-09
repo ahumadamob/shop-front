@@ -6,6 +6,8 @@ import { CategoriaFormComponent } from './admin/categoria-form.component';
 import { AdminHomeComponent } from './admin/admin-home.component';
 import { ProductoListComponent } from './admin/producto-list.component';
 import { ProductoFormComponent } from './admin/producto-form.component';
+import { CatalogoAtributoListComponent } from './admin/catalogo-atributo-list.component';
+import { CatalogoAtributoFormComponent } from './admin/catalogo-atributo-form.component';
 
 export const appRoutes: Routes = [
   { path: '', component: CatalogComponent },
@@ -19,7 +21,10 @@ export const appRoutes: Routes = [
       { path: 'categoria/:id', component: CategoriaFormComponent },
       { path: 'producto', component: ProductoListComponent },
       { path: 'producto/nuevo', component: ProductoFormComponent },
-      { path: 'producto/:id', component: ProductoFormComponent }
+      { path: 'producto/:id', component: ProductoFormComponent },
+      { path: 'catalogo-atributo', component: CatalogoAtributoListComponent },
+      { path: 'catalogo-atributo/nuevo', component: CatalogoAtributoFormComponent },
+      { path: 'catalogo-atributo/:id', component: CatalogoAtributoFormComponent }
     ]
   }
 ];

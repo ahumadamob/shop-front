@@ -15,6 +15,9 @@ import { RouterModule } from '@angular/router';
           <li class="nav-item">
             <a routerLink="producto" class="nav-link">Producto</a>
           </li>
+          <li class="nav-item">
+            <a routerLink="catalogo-atributo" class="nav-link">Catálogo Atributo</a>
+          </li>
         </ul>
       </nav>
       <div class="flex-grow-1 p-3">
