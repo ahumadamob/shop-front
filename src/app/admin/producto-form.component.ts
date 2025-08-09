@@ -40,6 +40,7 @@ interface ProductoAtributoForm {
           <button
             class="nav-link"
             [class.active]="activeTab === 'general'"
+            [class.text-danger]="generalHasError"
             type="button"
             (click)="activeTab = 'general'"
           >
@@ -50,6 +51,7 @@ interface ProductoAtributoForm {
           <button
             class="nav-link"
             [class.active]="activeTab === 'atributos'"
+            [class.text-danger]="atributosHasError"
             type="button"
             (click)="activeTab = 'atributos'"
           >
@@ -230,6 +232,8 @@ export class ProductoFormComponent implements OnInit {
   atributos: ProductoAtributoForm[] = [];
   deletedAtributoIds: number[] = [];
   activeTab: 'general' | 'atributos' = 'general';
+  generalHasError = false;
+  atributosHasError = false;
 
   constructor(
     private service: ProductoService,
@@ -295,6 +299,8 @@ export class ProductoFormComponent implements OnInit {
   submit(): void {
     const idParam = this.route.snapshot.paramMap.get('id');
     this.errorMessages = {};
+    this.generalHasError = false;
+    this.atributosHasError = false;
 
     const picturesWithIndex = this.pictures.map((p, index) => ({
       ...p,
@@ -369,12 +375,21 @@ export class ProductoFormComponent implements OnInit {
     this.router.navigate(['../'], { relativeTo: this.route });
   }
 
+  private updateTabErrorFlags(): void {
+    const generalFields = ['nombre', 'categoriaIds'];
+    this.generalHasError = generalFields.some((f) => this.errorMessages[f]);
+    this.atributosHasError = Object.keys(this.errorMessages).some(
+      (f) => !generalFields.includes(f)
+    );
+  }
+
   private handleErrors(err: any): void {
     if (err.error && Array.isArray(err.error.errors)) {
       for (const e of err.error.errors) {
         this.errorMessages[e.field] = e.message;
       }
     }
+    this.updateTabErrorFlags();
   }
 
   addPicture(): void {
